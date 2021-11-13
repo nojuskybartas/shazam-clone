@@ -1,0 +1,17 @@
+.DS_Store
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+pip-log.txt
+pip-delete-this-directory.txt
+
+*.wav
+*.mp3
+
+db_songs
+recordings
+
+config-development.json
+

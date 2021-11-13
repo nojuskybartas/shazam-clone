@@ -1,0 +1,79 @@
+<head>
+    <link rel="stylesheet" href="static/assets/style.css">
+    <title>Music Recognizer</title>
+</head>
+<body>
+
+    <!-- <input type="file" accept="audio/*" capture id="recorder"> -->
+    <div class="button_container">
+        <button id='record_btn'>Record</button>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    
+    <script>
+
+        function uploadAudio(audioBlob) {
+            let data = new FormData();
+            data.append('file', audioBlob);
+            return axios
+                .post(`/audiodata`, data, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                })
+                .then(res => {
+                    console.log(res)
+                    document.getElementById("record_btn").innerHTML = 'Record';
+                    return res
+                });
+        }
+
+        document.getElementById("record_btn").addEventListener("click", function() {
+        document.getElementById("record_btn").innerHTML = "Recording!";
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                const mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+
+                const audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
+                    uploadAudio(audioBlob);
+                    document.getElementById("record_btn").innerHTML = "Analysing...";
+                });
+
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, 8000);
+            });
+        });
+        
+    </script>
+
+    <!-- Check for the device type -->
+    <!-- <script>
+        const deviceType = () => {
+            const ua = navigator.userAgent;
+            if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+                alert("Please open this website on a desktop/laptop, not a tablet")
+                return "tablet";
+            }
+            else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+                alert("Please open this website on a desktop/laptop, not a phone")
+                return "mobile";
+            }
+            return "desktop";
+        };
+        deviceType();
+    </script> -->
+
+</body>
+<footer>
+    <h3>Made by Nojus Kybartas</h3>
+    <h3>Short explanation: Recorded audio (JS) is sent to the server (Python), where it's fingerprinted and checked against the database</h3>
+</footer>
